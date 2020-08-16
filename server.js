@@ -14,6 +14,12 @@ const usersData = require("./data/users.js");
 const userGroupsData = require("./data/user-groups.js");
 const messagesData = require("./data/messages.js");
 
+const config = require('config')
+
+//mail-api
+const mail = require("./mail/mail-sender.js");
+const users = require('./data/users.js');
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -76,6 +82,19 @@ app.get('/flare/api/messages/:id?' + limitOffsetParamStr, (req,res)=>{
   res.send(lookupDataFromArray(req, subjectData));
 })
 
+//set this up as from so we can see where it goes
+app.post('/flare/api/users/:id/invite', (req, res) => {
+  //fix this stuff
+
+  //let subjectData = messagesData.messages;
+  //var user = {lookupDataFromArray(req, subjectData)}
+
+  console.log("sending email to " + user.name);
+  
+  mail.send(user.email, function() {   
+    res.send('email sent successfully');
+  });
+})
+
 app.listen(3001);
 console.log('Listening on localhost:3001');
-
