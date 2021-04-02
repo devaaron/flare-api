@@ -2,39 +2,21 @@
 
 const express = require('express');
 const app = express();
-const jwt = require('express-jwt');
-const jwks = require('jwks-rsa');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const GetParams = require('./types/GetParams.js');
 
-//data
-const usersData = require("./data/users.js");
-const userGroupsData = require("./data/user-groups.js");
-const messagesData = require("./data/messages.js");
 
-const config = require('config')
+//email
+const mail = require("./sender/mail-sender.js");
 
-//mail-api
-const mail = require("./mail/mail-sender.js");
-const users = require('./data/users.js');
+//sms
+const sms = require("./sender/sms-sender.js");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-
-const authCheck = jwt({
-    secret: jwks.expressJwtSecret({
-        cache: true,
-        rateLimit: true,
-        jwksRequestsPerMinute: 5,
-        jwksUri: 'jwks.json' // @TODO: remove domain name
-    }),
-    audience: 'http://localhost:3001',
-    issuer: "https://kmaida.auth0.com/", // @TODO: remove domain name
-    algorithms: ['RS256']
-});
 
 const limitOffsetParamStr = "/:limit?/:offset?";
 
@@ -56,41 +38,16 @@ const getFromLimitedAndOffset = function(data, lo) {
       }
 }
 
-const lookupDataFromArray = function(req, subjectData) {
-  let paramObj = parseParams(req)
-  if(paramObj.pkId == undefined) {
-    return getFromLimitedAndOffset(subjectData, paramObj);
-  } else {
-    let index = parseInt(paramObj.pkId) - 1;
-    return subjectData[index]
-  }
-}
-
-app.get('/flare/api/users/:id?' + limitOffsetParamStr, (req, res)=>{
-  let subjectData = usersData.users;
-  res.send(lookupDataFromArray(req, subjectData));
-})
-
-
-app.get('/flare/api/groups/:id?' + limitOffsetParamStr, (req,res)=>{
-  let subjectData = userGroupsData.userGroups;
-  res.send(lookupDataFromArray(req, subjectData));
-})
-
-app.get('/flare/api/messages/:id?' + limitOffsetParamStr, (req,res)=>{
-  let subjectData = messagesData.messages;
-  res.send(lookupDataFromArray(req, subjectData));
+app.post('/flare/api/sms', (req, res) =>{
+  const recipient = req.body.to;
+  const message = req.body.message;
+  sms.send(recipient, message);
+  res.send('sms sent')
 })
 
 //set this up as from so we can see where it goes
 app.post('/flare/api/users/:id/invite', (req, res) => {
-  //fix this stuff
-
-  //let subjectData = messagesData.messages;
-  //var user = {lookupDataFromArray(req, subjectData)}
-
   console.log("sending email to " + user.name);
-  
   mail.send(user.email, function() {   
     res.send('email sent successfully');
   });

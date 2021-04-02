@@ -2,6 +2,7 @@ const config = require('config');
 
 const api_key = config.get('email.apiKey');
 const domain = config.get('email.domain');
+
 var mailgun = require('mailgun-js')({
   apiKey: api_key, 
   domain: domain, 
