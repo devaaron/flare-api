@@ -16,7 +16,7 @@
     "config": "^3.3.6",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "express-jwt": "^5.3.3",
+    "express-jwt": "^6.0.0",
     "js-yaml": "^3.14.1",
     "jwks-rsa": "^1.12.3",
     "mailgun-js": "^0.22.0",
