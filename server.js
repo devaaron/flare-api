@@ -14,6 +14,8 @@ const mail = require("./sender/mail-sender.js");
 //sms
 const sms = require("./sender/sms-sender.js");
 
+const dbConn = require("./dal/mysql-connector.js")
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -47,11 +49,20 @@ app.post('/flare/api/sms', (req, res) =>{
 
 //set this up as from so we can see where it goes
 app.post('/flare/api/users/:id/invite', (req, res) => {
-  console.log("sending email to " + user.name);
+  /*console.log("sending email to " + user.name);
   mail.send(user.email, function() {   
     res.send('email sent successfully');
+  });*/
+})
+
+app.get('/flare/api/users/:id', (req, res) => {
+  // try '741470671007252501'
+  dbConn.getFriends(req.params.id, (data) => {
+    res.send(data)
+    console.log('data: ' + data);
   });
 })
 
-app.listen(3001);
+
+app.listen(3002);
 console.log('Listening on localhost:3001');
